@@ -82,7 +82,7 @@ module "func" {
           identity_ids = null
       }
   ]
-  tags = local.tags
+  //tags = local.tags
 }
 
 resource "azurerm_role_assignment" "functosa" {
