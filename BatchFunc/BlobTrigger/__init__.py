@@ -34,8 +34,7 @@ def main(myblob: func.InputStream):
     command = "/bin/bash -c \"python3 --version && git clone https://github.com/implodingduck/batch-multi-sum.git && cd batch-multi-sum && python3 run.py -g ./values.csv && cat computed/values.csv\""
     task = batchmodels.TaskAddParameter(
             id=uuid.uuid4(),
-            command_line=command,
-            resource_files=[myblob]
+            command_line=command
         )
     tasks.append(task)
 
