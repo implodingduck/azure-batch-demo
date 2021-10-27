@@ -90,3 +90,16 @@ resource "azurerm_role_assignment" "functosa" {
   role_definition_name = "Storage Blob Data Owner"
   principal_id         = module.func.identity_principal_id
 
+}
+
+
+resource "azurerm_batch_account" "example" {
+  name                 = "ba0${local.func_name}"
+  resource_group_name  = azurerm_resource_group.rg.name
+  location             = azurerm_resource_group.rg.location
+  pool_allocation_mode = "BatchService"
+  identity {
+      type = "SystemAssigned"
+  }
+  tags = local.tags
+}
