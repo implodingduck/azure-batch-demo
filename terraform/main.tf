@@ -139,6 +139,15 @@ resource "azurerm_key_vault_secret" "satrigger" {
   key_vault_id = azurerm_key_vault.kv.id
 }
 
+resource "azurerm_key_vault_secret" "satrigger" {
+  depends_on = [
+    azurerm_key_vault_access_policy.sp
+  ]
+  name         = "baaccesskey"
+  value        = azurerm_batch_account.ba.primary_access_key
+  key_vault_id = azurerm_key_vault.kv.id
+}
+
 
 module "func" {
   source = "github.com/implodingduck/tfmodules//functionapp"
@@ -151,6 +160,7 @@ module "func" {
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME" = "python"
     "TRIGGER_STORAGE_ACCOUNT" = "@Microsoft.KeyVault(VaultName=${azurerm_key_vault.kv.name};SecretName=${azurerm_key_vault_secret.satrigger.name})"
+    "BATCH_ACCOUNT_ENDPOINT" = azurerm_batch_account.ba.account_endpoint
   }
   app_identity = [
       {
@@ -171,4 +181,45 @@ resource "azurerm_batch_account" "ba" {
       type = "SystemAssigned"
   }
   tags = local.tags
+}
+
+resource "azurerm_batch_pool" "pool" {
+  name                = "demopool"
+  resource_group_name = azurerm_resource_group.ba.name
+  account_name        = azurerm_batch_account.ba.name
+  node_agent_sku_id   = "batch.node.ubuntu 20.04"
+  vm_size             = "STANDARD_DS1_V2"
+  storage_image_reference {
+    publisher = "canonical"
+    offer     = "0001-com-ubuntu-server-focal"
+    sku       = "20_04-lts"
+    version   = "latest"
+  }
+
+  auto_scale {
+    evaluation_interval = "PT5M"
+
+    formula = <<EOF
+      startingNumberOfVMs = 0;
+      maxNumberofVMs = 2;
+      $TargetDedicatedNodes=min(maxNumberofVMs, $ActiveTasks);
+EOF
+
+  }
+  start_task {
+    command_line         = "/bin/bash -c \"sudo apt-get -y update && sudo apt-get install -y python3\""
+    max_task_retry_count = 1
+    wait_for_success     = true
+
+    environment = {
+      env = "TEST"
+    }
+
+    user_identity {
+      auto_user {
+        elevation_level = "admin"
+        scope           = "Task"
+      }
+    }
+  }
 }
