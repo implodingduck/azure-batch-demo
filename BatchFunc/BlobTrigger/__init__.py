@@ -30,8 +30,8 @@ def main(myblob: func.InputStream):
     batch_client.job.add(job)
     
     tasks = list()
-
-    command = "/bin/bash -c \"python3 --version && git clone https://github.com/implodingduck/batch-multi-sum.git && cd batch-multi-sum && python3 run.py -g ./values.csv && cat computed/values.csv\""
+    filename = f"{myblob.name.replace('input/', '').replace('.csv', '')}.csv"
+    command = f"/bin/bash -c \"python3 --version && git clone https://github.com/implodingduck/batch-multi-sum.git && cd batch-multi-sum && python3 run.py -g ./{filename} && cat computed/{filename}\""
     task = batchmodels.TaskAddParameter(
             id=uuid.uuid4(),
             command_line=command

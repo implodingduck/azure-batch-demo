@@ -5,7 +5,7 @@
       "name": "myblob",
       "type": "blobTrigger",
       "direction": "in",
-      "path": "input/{name}",
+      "path": "input/{name}.csv",
       "connection": "TRIGGER_STORAGE_ACCOUNT"
     }
   ]

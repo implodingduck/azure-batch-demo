@@ -163,7 +163,7 @@ module "func" {
     "BATCH_ACCOUNT_ENDPOINT" = "https://${azurerm_batch_account.ba.account_endpoint}"
     "BATCH_ACCOUNT_NAME" = "ba${local.func_name}"
     "BATCH_ACCOUNT_KEY" = "@Microsoft.KeyVault(VaultName=${azurerm_key_vault.kv.name};SecretName=${azurerm_key_vault_secret.baaccesskey.name})"
-    BATCH_POOL_ID = "demopool"
+    "BATCH_POOL_ID" = "demopool"
   }
   app_identity = [
       {
