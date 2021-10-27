@@ -43,6 +43,29 @@ resource "random_string" "unique" {
 
 data "azurerm_client_config" "current" {}
 
+resource "azurerm_storage_account" "sa" {
+  name                     = "satrigger${local.func_name}"
+  resource_group_name      = var.resource_group_name
+  location                 = var.resource_group_location
+  account_kind             = "StorageV2"
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+
+  tags = local.tags
+}
+
+resource "azurerm_storage_container" "input" {
+  name                  = "input"
+  storage_account_name  = azurerm_storage_account.sa.name
+  container_access_type = "private"
+}
+
+resource "azurerm_storage_container" "output" {
+  name                  = "output"
+  storage_account_name  = azurerm_storage_account.sa.name
+  container_access_type = "private"
+}
+
 module "func" {
   source = "github.com/implodingduck/tfmodules//functionapp"
   func_name = "${local.func_name}"
@@ -59,4 +82,11 @@ module "func" {
           identity_ids = null
       }
   ]
+  tags = local.tags
 }
+
+resource "azurerm_role_assignment" "functosa" {
+  scope                = azurerm_storage_account.sa.name
+  role_definition_name = "Storage Blob Data Owner"
+  principal_id         = module.func.identity_principal_id
+
