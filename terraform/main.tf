@@ -187,8 +187,8 @@ resource "azurerm_batch_account" "ba" {
 }
 
 resource "azurerm_user_assigned_identity" "test" {
-  resource_group_name = azurerm_resource_group.test.name
-  location            = azurerm_resource_group.test.location
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
 
   name = "ba${local.func_name}-demopool-id"
 }
