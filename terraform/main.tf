@@ -93,8 +93,8 @@ resource "azurerm_role_assignment" "functosa" {
 }
 
 
-resource "azurerm_batch_account" "example" {
-  name                 = "ba0${local.func_name}"
+resource "azurerm_batch_account" "ba" {
+  name                 = "ba-${local.func_name}"
   resource_group_name  = azurerm_resource_group.rg.name
   location             = azurerm_resource_group.rg.location
   pool_allocation_mode = "BatchService"
