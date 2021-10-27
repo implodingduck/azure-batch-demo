@@ -92,12 +92,12 @@ module "func" {
   //tags = local.tags
 }
 
-# resource "azurerm_role_assignment" "functosa" {
-#   scope                = azurerm_storage_account.sa.id
-#   role_definition_name = "Storage Blob Data Owner"
-#   principal_id         = module.func.identity_principal_id
+resource "azurerm_role_assignment" "functosa" {
+  scope                = azurerm_storage_account.sa.id
+  role_definition_name = "Storage Blob Data Owner"
+  principal_id         = module.func.identity_principal_id
 
-# }
+}
 
 
 resource "azurerm_batch_account" "ba" {

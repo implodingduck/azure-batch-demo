@@ -79,7 +79,7 @@ stages:
             export ARM_CLIENT_ID=$servicePrincipalId
             export ARM_CLIENT_SECRET=$servicePrincipalKey
             export ARM_TENANT_ID=$tenantId
-            mv BatchFunc/local.settings.json.sample BatchFunc/local.settings.json
+            mv ../BatchFunc/local.settings.json.sample ../BatchFunc/local.settings.json
             terraform apply -auto-approve theplan
         env:
           TF_VAR_subscription_id: $(subscription-id)
