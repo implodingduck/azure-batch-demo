@@ -220,7 +220,7 @@ EOF
 
     user_identity {
       auto_user {
-        elevation_level = "admin"
+        elevation_level = "Admin"
         scope           = "Task"
       }
     }
