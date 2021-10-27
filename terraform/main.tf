@@ -72,6 +72,74 @@ resource "azurerm_storage_container" "output" {
   container_access_type = "private"
 }
 
+resource "azurerm_key_vault" "kv" {
+  name                       = "kv-${local.func_name}"
+  location                   = azurerm_resource_group.rg.location
+  resource_group_name        = azurerm_resource_group.rg.name
+  tenant_id                  = data.azurerm_client_config.current.tenant_id
+  sku_name                   = "standard"
+  soft_delete_retention_days = 7
+  purge_protection_enabled = false
+
+  tags = local.tags
+}
+
+resource "azurerm_key_vault_access_policy" "sp" {
+  key_vault_id = azurerm_key_vault.kv.id
+  tenant_id = data.azurerm_client_config.current.tenant_id
+  object_id = data.azurerm_client_config.current.object_id
+  
+  key_permissions = [
+    "Create",
+    "Get",
+    "Purge",
+    "Recover",
+    "Delete"
+  ]
+
+  secret_permissions = [
+    "Set",
+    "Purge",
+    "Get",
+    "List"
+  ]
+
+  certificate_permissions = [
+    "Purge"
+  ]
+
+  storage_permissions = [
+    "Purge"
+  ]
+}
+
+
+resource "azurerm_key_vault_access_policy" "func" {
+  key_vault_id = azurerm_key_vault.kv.id
+  tenant_id = data.azurerm_client_config.current.tenant_id
+  object_id = module.func.identity_principal_id
+  
+  key_permissions = [
+    "get",
+  ]
+
+  secret_permissions = [
+    "get",
+    "list"
+  ]
+  
+}
+
+resource "azurerm_key_vault_secret" "satrigger" {
+  depends_on = [
+    azurerm_key_vault_access_policy.sp
+  ]
+  name         = "satriggerconnectionstring"
+  value        = azurerm_storage_account.sa.primary_blob_connection_string
+  key_vault_id = azurerm_key_vault.kv.id
+}
+
+
 module "func" {
   source = "github.com/implodingduck/tfmodules//functionapp"
   func_name = "${local.func_name}"
@@ -82,7 +150,7 @@ module "func" {
   
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME" = "python"
-    "TRIGGER_STORAGE_ACCOUNT" = azurerm_storage_account.sa.primary_blob_endpoint 
+    "TRIGGER_STORAGE_ACCOUNT" = "@Microsoft.KeyVault(VaultName=${azurerm_key_vault.kv.name};SecretName=${azurerm_key_vault_secret.satrigger.name})"
   }
   app_identity = [
       {
@@ -91,13 +159,6 @@ module "func" {
       }
   ]
   //tags = local.tags
-}
-
-resource "azurerm_role_assignment" "functosa" {
-  scope                = azurerm_storage_account.sa.id
-  role_definition_name = "Storage Blob Data Owner"
-  principal_id         = module.func.identity_principal_id
-
 }
 
 
