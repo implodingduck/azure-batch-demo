@@ -71,7 +71,7 @@ module "func" {
   func_name = "${local.func_name}"
   resource_group_name = azurerm_resource_group.rg.name
   resource_group_location = azurerm_resource_group.rg.location
-  working_dir = "BatchFunc"
+  working_dir = "../BatchFunc"
   
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME" = "python"
