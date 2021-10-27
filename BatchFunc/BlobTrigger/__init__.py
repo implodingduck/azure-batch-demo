@@ -28,6 +28,8 @@ def main(myblob: func.InputStream):
         pool_info=batchmodels.PoolInformation(pool_id=pool_id))
 
     batch_client.job.add(job)
+    
+    tasks = list()
 
     command = "/bin/bash -c \"python3 --version && git clone https://github.com/implodingduck/batch-multi-sum.git && cd batch-multi-sum && python3 run.py -g ./values.csv && cat computed/values.csv\""
     task = batchmodels.TaskAddParameter(
@@ -35,5 +37,6 @@ def main(myblob: func.InputStream):
             command_line=command,
             resource_files=[myblob]
         )
+    tasks.append(task)
 
-    batch_client.task.add_collection(job_id, [task])
+    batch_client.task.add_collection(job_id, tasks)
