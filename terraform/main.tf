@@ -30,7 +30,7 @@ locals {
 }
 
 resource "azurerm_resource_group" "rg" {
-  name     = "rg-${local.func_name}-${loc_for_naming}"
+  name     = "rg-${local.func_name}-${local.loc_for_naming}"
   location = var.location
 }
 
@@ -42,3 +42,21 @@ resource "random_string" "unique" {
 
 
 data "azurerm_client_config" "current" {}
+
+module "func" {
+  source = "github.com/implodingduck/tfmodules//functionapp"
+  func_name = "${local.func_name}"
+  resource_group_name = azurerm_resource_group.rg.name
+  resource_group_location = azurerm_resource_group.rg.location
+  working_dir = "BatchFunc"
+  
+  app_settings = {
+    "FUNCTIONS_WORKER_RUNTIME" = "python"
+  }
+  app_identity = [
+      {
+          type = "SystemAssigned"
+          identity_ids = null
+      }
+  ]
+}
