@@ -43,6 +43,12 @@ resource "random_string" "unique" {
 
 data "azurerm_client_config" "current" {}
 
+data "azurerm_log_analytics_workspace" "default" {
+  name                = "DefaultWorkspace-${data.azurerm_client_config.current.subscription_id}-EUS"
+  resource_group_name = "DefaultResourceGroup-EUS"
+} 
+
+
 resource "azurerm_storage_account" "sa" {
   name                     = "satrigger${random_string.unique.result}"
   resource_group_name      = azurerm_resource_group.rg.name
@@ -72,6 +78,7 @@ module "func" {
   resource_group_name = azurerm_resource_group.rg.name
   resource_group_location = azurerm_resource_group.rg.location
   working_dir = "../BatchFunc"
+  // TODO add workspace_id for app insights
   
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME" = "python"
@@ -85,12 +92,12 @@ module "func" {
   //tags = local.tags
 }
 
-resource "azurerm_role_assignment" "functosa" {
-  scope                = azurerm_storage_account.sa.id
-  role_definition_name = "Storage Blob Data Owner"
-  principal_id         = module.func.identity_principal_id
+# resource "azurerm_role_assignment" "functosa" {
+#   scope                = azurerm_storage_account.sa.id
+#   role_definition_name = "Storage Blob Data Owner"
+#   principal_id         = module.func.identity_principal_id
 
-}
+# }
 
 
 resource "azurerm_batch_account" "ba" {
