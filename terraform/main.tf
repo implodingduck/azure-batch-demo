@@ -44,7 +44,7 @@ resource "random_string" "unique" {
 data "azurerm_client_config" "current" {}
 
 resource "azurerm_storage_account" "sa" {
-  name                     = "satrigger${local.func_name}"
+  name                     = "satrigger${random_string.unique.result}"
   resource_group_name      = azurerm_resource_group.rg.name
   location                 = azurerm_resource_group.rg.location
   account_kind             = "StorageV2"
@@ -94,7 +94,7 @@ resource "azurerm_role_assignment" "functosa" {
 
 
 resource "azurerm_batch_account" "ba" {
-  name                 = "ba-${local.func_name}"
+  name                 = "ba${local.func_name}"
   resource_group_name  = azurerm_resource_group.rg.name
   location             = azurerm_resource_group.rg.location
   pool_allocation_mode = "BatchService"
