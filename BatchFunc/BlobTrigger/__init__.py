@@ -30,6 +30,10 @@ def main(myblob: func.InputStream):
     batch_client.job.add(job)
     
     tasks = list()
+    
+    # TOKEN=$(curl 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fstorage.azure.com%2F' -H Metadata:true | jq -r .access_token)
+    # curl https://<STORAGE ACCOUNT>.blob.core.windows.net/<CONTAINER NAME>/<FILE NAME> -H "x-ms-version: 2017-11-09" -H "Authorization: Bearer <ACCESS TOKEN>"
+    
     filename = f"{myblob.name.replace('input/', '').replace('.csv', '')}.csv"
     command = f"/bin/bash -c \"python3 --version && git clone https://github.com/implodingduck/batch-multi-sum.git && cd batch-multi-sum && python3 run.py -g ./{filename} && cat computed/{filename}\""
     task = batchmodels.TaskAddParameter(

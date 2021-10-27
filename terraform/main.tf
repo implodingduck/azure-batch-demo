@@ -186,6 +186,21 @@ resource "azurerm_batch_account" "ba" {
   tags = local.tags
 }
 
+resource "azurerm_user_assigned_identity" "test" {
+  resource_group_name = azurerm_resource_group.test.name
+  location            = azurerm_resource_group.test.location
+
+  name = "ba${local.func_name}-demopool-id"
+}
+
+resource "azurerm_role_assignment" "pooltosa" {
+  scope                = azurerm_storage_account.sa.id
+  role_definition_name = "Storage Blob Data Owner"
+  principal_id         = azurerm_user_assigned_identity.test.principal_id
+
+}
+
+
 resource "azurerm_batch_pool" "pool" {
   name                = "demopool"
   resource_group_name = azurerm_resource_group.rg.name
@@ -199,12 +214,19 @@ resource "azurerm_batch_pool" "pool" {
     version   = "latest"
   }
 
+  identity {
+    type = "UserAssigned"
+    identity_ids = [
+      azurerm_user_assigned_identity.test.id
+    ] 
+  }
+
   fixed_scale {
     target_dedicated_nodes = 0
     target_low_priority_nodes = 1
   }
   start_task {
-    command_line         = "/bin/bash -c \"sudo apt-get -y update && sudo apt-get install -y python3\""
+    command_line         = "/bin/bash -c \"sudo apt-get -y update && sudo apt-get install -y python3 jq\""
     max_task_retry_count = 1
     wait_for_success     = true
 
