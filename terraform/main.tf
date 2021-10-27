@@ -82,6 +82,7 @@ module "func" {
   
   app_settings = {
     "FUNCTIONS_WORKER_RUNTIME" = "python"
+    "TRIGGER_STORAGE_ACCOUNT" = azurerm_storage_account.sa.primary_blob_endpoint 
   }
   app_identity = [
       {

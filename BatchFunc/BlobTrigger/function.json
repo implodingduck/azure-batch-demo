@@ -6,7 +6,7 @@
       "type": "blobTrigger",
       "direction": "in",
       "path": "input/{name}",
-      "connection": ""
+      "connection": "TRIGGER_STORAGE_ACCOUNT"
     }
   ]
 }
