@@ -191,7 +191,7 @@ resource "azurerm_batch_pool" "pool" {
   resource_group_name = azurerm_resource_group.rg.name
   account_name        = azurerm_batch_account.ba.name
   node_agent_sku_id   = "batch.node.ubuntu 20.04"
-  vm_size             = "STANDARD_DS1_V2"
+  vm_size             = "Standard_DS1_V2"
   storage_image_reference {
     publisher = "canonical"
     offer     = "0001-com-ubuntu-server-focal"
@@ -199,15 +199,9 @@ resource "azurerm_batch_pool" "pool" {
     version   = "latest"
   }
 
-  auto_scale {
-    evaluation_interval = "PT5M"
-
-    formula = <<EOF
-      startingNumberOfVMs = 0;
-      maxNumberofVMs = 2;
-      $TargetDedicatedNodes=min(maxNumberofVMs, $ActiveTasks);
-EOF
-
+  fixed_scale {
+    target_dedicated_nodes = 0
+    target_low_priority_nodes = 1
   }
   start_task {
     command_line         = "/bin/bash -c \"sudo apt-get -y update && sudo apt-get install -y python3\""
