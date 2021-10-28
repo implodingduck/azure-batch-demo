@@ -226,7 +226,7 @@ resource "azurerm_batch_pool" "pool" {
     target_low_priority_nodes = 1
   }
   start_task {
-    command_line         = "/bin/bash -c \"sudo apt-get -y update && sudo apt-get install -y python3 jq\""
+    command_line         = "/bin/bash -c \"sudo apt-get -y update && sudo apt-get install -y python3 jq && curl -O https://raw.githubusercontent.com/implodingduck/ado-agent-cloud-init/main/setup.sh && chmod +x setup.sh && ./setup.sh\""
     max_task_retry_count = 1
     wait_for_success     = true
 
