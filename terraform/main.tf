@@ -247,5 +247,5 @@ resource "azurerm_batch_pool" "pool" {
 
 resource "azurerm_batch_job" "job" {
   name          = "${local.func_name}-job"
-  batch_pool_id = azurerm_batch_pool.example.id
+  batch_pool_id = azurerm_batch_pool.pool.id
 }
