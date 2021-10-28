@@ -14,6 +14,8 @@ def main(myblob: func.InputStream):
     BATCH_ACCOUNT_NAME = os.environ.get('BATCH_ACCOUNT_NAME')
     BATCH_ACCOUNT_ENDPOINT = os.environ.get('BATCH_ACCOUNT_ENDPOINT')
     BATCH_ACCOUNT_KEY = os.environ.get('BATCH_ACCOUNT_KEY')
+    BATCH_JOB_ID = os.environ.get('BATCH_JOB_ID')
+    TRIGGER_STORAGE_ACCOUNT_NAME = os.environ.get('TRIGGER_STORAGE_ACCOUNT_NAME')
     pool_id = os.environ.get('BATCH_POOL_ID')
     credentials = SharedKeyCredentials(BATCH_ACCOUNT_NAME,
         BATCH_ACCOUNT_KEY)
@@ -21,25 +23,15 @@ def main(myblob: func.InputStream):
     batch_client = BatchServiceClient(
         credentials,
         batch_url=BATCH_ACCOUNT_ENDPOINT)
-
-    job_id = uuid.uuid4()
-    job = batchmodels.JobAddParameter(
-        id=job_id,
-        pool_info=batchmodels.PoolInformation(pool_id=pool_id))
-
-    batch_client.job.add(job)
     
     tasks = list()
     
-    # TOKEN=$(curl 'http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01&resource=https%3A%2F%2Fstorage.azure.com%2F' -H Metadata:true | jq -r .access_token)
-    # curl https://<STORAGE ACCOUNT>.blob.core.windows.net/<CONTAINER NAME>/<FILE NAME> -H "x-ms-version: 2017-11-09" -H "Authorization: Bearer <ACCESS TOKEN>"
-    
     filename = f"{myblob.name.replace('input/', '').replace('.csv', '')}.csv"
-    command = f"/bin/bash -c \"curl -O https://raw.githubusercontent.com/implodingduck/azure-batch-demo/main/advanced-task.sh && chmod +x advanced-task.sh && ./advanced-task.sh {filename} \""
+    command = f"/bin/bash -c \"curl -O https://raw.githubusercontent.com/implodingduck/azure-batch-demo/main/advanced-task.sh && chmod +x advanced-task.sh && ./advanced-task.sh {filename} {TRIGGER_STORAGE_ACCOUNT_NAME}\""
     task = batchmodels.TaskAddParameter(
             id=uuid.uuid4(),
             command_line=command
         )
     tasks.append(task)
 
-    batch_client.task.add_collection(job_id, tasks)
+    batch_client.task.add_collection(BATCH_JOB_ID, tasks)

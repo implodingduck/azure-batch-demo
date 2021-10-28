@@ -164,6 +164,8 @@ module "func" {
     "BATCH_ACCOUNT_NAME" = "ba${local.func_name}"
     "BATCH_ACCOUNT_KEY" = "@Microsoft.KeyVault(VaultName=${azurerm_key_vault.kv.name};SecretName=${azurerm_key_vault_secret.baaccesskey.name})"
     "BATCH_POOL_ID" = "demopool"
+    "BATCH_JOB_ID" = "${local.func_name}-job"
+    "TRIGGER_STORAGE_ACCOUNT_NAME" = "satrigger${random_string.unique.result}"
   }
   app_identity = [
       {
@@ -241,4 +243,9 @@ resource "azurerm_batch_pool" "pool" {
       }
     }
   }
+}
+
+resource "azurerm_batch_job" "job" {
+  name          = "${local.func_name}-job"
+  batch_pool_id = azurerm_batch_pool.example.id
 }
