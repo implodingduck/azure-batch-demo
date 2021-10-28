@@ -12,4 +12,4 @@ python3 run.py ./$FILENAME
 cat computed/$FILENAME
 FILESIZE=$(stat --printf="%s" computed/$FILENAME)
 #curl -v -X PUT -T ./computed/$FILENAME -H "x-ms-date: $(date -u)" -H "x-ms-blob-type: BlockBlob" -H "x-ms-version: 2020-10-02" -H "Content-Length: $FILESIZE" -H "Authorization: Bearer $TOKEN" "https://satriggerjrt448d3.blob.core.windows.net/output/$FILENAME"
-az storage blob upload --account-name satriggerjrt448d3 --container-name output --file ./computed/$FILENAME -n $FILENAME
+az storage blob upload --auth-mode login --account-name satriggerjrt448d3 --container-name output --file ./computed/$FILENAME -n $FILENAME
