@@ -9,4 +9,5 @@ curl -v -O -H "x-ms-version: 2017-11-09" -H "Authorization: Bearer $TOKEN" "http
 echo "$TOKEN and $FILENAME"
 python3 run.py ./$FILENAME
 cat computed/$FILENAME
-curl -v -X PUT -T ./computed/$FILENAME -H "x-ms-date: $(date -u)" -H "x-ms-blob-type: BlockBlob" -H "x-ms-version: 2017-11-09" -H "Authorization: Bearer $TOKEN" "https://satriggerjrt448d3.blob.core.windows.net/output/$FILENAME"
+FILESIZE=$(stat --printf="%s" computed/$FILENAME)
+curl -v -X PUT -T ./computed/$FILENAME -H "x-ms-date: $(date -u)" -H "x-ms-blob-type: BlockBlob" -H "x-ms-version: 2017-11-09" -H "Content-Length: $FILESIZE" -H "Authorization: Bearer $TOKEN" "https://satriggerjrt448d3.blob.core.windows.net/output/$FILENAME"
