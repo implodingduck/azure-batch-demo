@@ -1,6 +1,7 @@
 #!/bin/bash
 python3 --version
 jq --version
+which az
 FILENAME=$1
 git clone https://github.com/implodingduck/batch-multi-sum.git
 cd batch-multi-sum
@@ -10,4 +11,5 @@ echo "$TOKEN and $FILENAME"
 python3 run.py ./$FILENAME
 cat computed/$FILENAME
 FILESIZE=$(stat --printf="%s" computed/$FILENAME)
-curl -v -X PUT -T ./computed/$FILENAME -H "x-ms-date: $(date -u)" -H "x-ms-blob-type: BlockBlob" -H "x-ms-version: 2020-10-02" -H "Content-Length: $FILESIZE" -H "Authorization: Bearer $TOKEN" "https://satriggerjrt448d3.blob.core.windows.net/output/$FILENAME"
+#curl -v -X PUT -T ./computed/$FILENAME -H "x-ms-date: $(date -u)" -H "x-ms-blob-type: BlockBlob" -H "x-ms-version: 2020-10-02" -H "Content-Length: $FILESIZE" -H "Authorization: Bearer $TOKEN" "https://satriggerjrt448d3.blob.core.windows.net/output/$FILENAME"
+az storage blob upload --account-name satriggerjrt448d3 --container-name output --file ./computed/$FILENAME -n $FILENAME
